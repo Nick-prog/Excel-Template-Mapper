@@ -1,0 +1,33 @@
+# MANIFEST.in - Include additional files in the package
+
+# Include all Python files from src directory
+recursive-include src *.py
+
+# Include configuration and data files
+include requirements.txt
+include README.md
+include LICENSE
+include pyproject.toml
+include install.sh
+
+# Include Docker files
+recursive-include docker *
+
+# Include Makefile
+include Makefile
+
+# Exclude compiled Python files
+global-exclude *.pyc
+global-exclude *.pyo
+global-exclude *~
+global-exclude *.so
+global-exclude .DS_Store
+
+# Exclude development files
+global-exclude .git*
+global-exclude __pycache__
+recursive-exclude * __pycache__
+recursive-exclude * *.py[co]
+
+# Include GitHub workflows (if they exist)
+recursive-include .github *.yml *.yaml

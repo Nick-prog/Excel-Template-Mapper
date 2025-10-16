@@ -1,0 +1,55 @@
+# Dockerfile for GUI applications using existing virtual environment
+FROM python:3.13-slim
+
+# Install system dependencies for GUI applications
+RUN apt-get update && apt-get install -y \
+    libgl1-mesa-dri \
+    libglx-mesa0 \
+    libglib2.0-0 \
+    libxext6 \
+    libsm6 \
+    libxrender1 \
+    libfontconfig1 \
+    libxi6 \
+    libxrandr2 \
+    libxss1 \
+    libxtst6 \
+    libasound2 \
+    libxcb1 \
+    libxkbcommon0 \
+    libxkbcommon-x11-0 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Keeps Python from generating .pyc files in the container
+ENV PYTHONDONTWRITEBYTECODE=1
+
+# Turns off buffering for easier container logging
+ENV PYTHONUNBUFFERED=1
+
+WORKDIR /app
+
+# Copy the project files (excluding venv for now)
+COPY . /app
+
+# Copy virtual environment preserving structure
+COPY venv /app/venv
+
+# Fix permissions for virtual environment and make install script executable
+RUN find /app/venv -type f -name "python*" -exec chmod +x {} \; && \
+    find /app/venv/bin -type f -exec chmod +x {} \; 2>/dev/null || true && \
+    chmod +x install.sh
+
+# Test installation using the venv
+RUN ./install.sh test
+
+# Creates a non-root user with an explicit UID and adds permission to access the /app folder
+RUN adduser -u 5678 --disabled-password --gecos "" appuser && chown -R appuser /app
+USER appuser
+
+# Set display environment variable
+ENV DISPLAY=:0
+
+# Use the virtual environment's Python
+ENV PATH="/app/venv/bin:$PATH"
+
+CMD ["python", "app_psg.py"]

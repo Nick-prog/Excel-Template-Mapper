@@ -1,0 +1,6 @@
+services:
+  templatemapper:
+    image: templatemapper
+    build:
+      context: ..
+      dockerfile: ./docker/Dockerfile
