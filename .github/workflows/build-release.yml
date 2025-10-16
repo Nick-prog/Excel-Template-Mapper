@@ -76,8 +76,16 @@ jobs:
 
     - name: Verify distributions
       run: |
-        ls -la dist/
-        python -m twine check dist/*
+        if [ -d "dist/" ]; then
+          echo "📦 Python distribution packages created:"
+          ls -la dist/
+          python -m twine check dist/*
+        else
+          echo "❌ dist/ directory not created by setup.py"
+          echo "🔍 Current directory contents:"
+          ls -la
+          exit 1
+        fi
 
     - name: Upload Python distribution artifacts
       uses: actions/upload-artifact@v4
@@ -167,12 +175,33 @@ jobs:
     - name: Verify executable exists and rename
       shell: bash
       run: |
-        ls -la dist/
-        if [ "${{ matrix.os }}" == "windows-latest" ]; then
-          mv dist/Template-Mapper.exe dist/${{ matrix.artifact_name }}
+        if [ -d "dist/" ]; then
+          echo "📂 Contents of dist directory:"
+          ls -la dist/
+          
+          if [ "${{ matrix.os }}" == "windows-latest" ]; then
+            if [ -f "dist/Template-Mapper.exe" ]; then
+              mv dist/Template-Mapper.exe dist/${{ matrix.artifact_name }}
+              echo "✅ Windows executable renamed successfully"
+            else
+              echo "❌ Template-Mapper.exe not found in dist/"
+              exit 1
+            fi
+          else
+            if [ -f "dist/Template-Mapper" ]; then
+              mv dist/Template-Mapper dist/${{ matrix.artifact_name }}
+              chmod +x dist/${{ matrix.artifact_name }}
+              echo "✅ Unix executable renamed and made executable"
+            else
+              echo "❌ Template-Mapper not found in dist/"
+              exit 1
+            fi
+          fi
         else
-          mv dist/Template-Mapper dist/${{ matrix.artifact_name }}
-          chmod +x dist/${{ matrix.artifact_name }}
+          echo "❌ dist/ directory not created by setup.py executable"
+          echo "🔍 Current directory contents:"
+          ls -la
+          exit 1
         fi
 
     - name: Test executable (quick validation)
