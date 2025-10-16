@@ -67,7 +67,13 @@ jobs:
         pip install build wheel setuptools twine
 
     - name: Create distribution setup files
+      shell: bash
       run: |
+        # Backup original setup.py 
+        if [ -f "setup.py" ]; then
+          cp setup.py setup_executable.py
+        fi
+
         # Create pyproject.toml
         cat > pyproject.toml << 'EOF'
         [build-system]
@@ -132,23 +138,27 @@ jobs:
         "*" = ["*.md", "*.txt", "*.yml", "*.yaml"]
         EOF
 
-        # Backup original setup.py
-        mv setup.py setup_executable.py
-
         # Create minimal setup.py for distribution builds
         cat > setup.py << 'EOF'
         from setuptools import setup
-
         setup()
         EOF
+
+        echo "Distribution setup files created successfully"
 
     - name: Build Python distributions
       run: |
         python -m build
 
     - name: Restore original setup.py
+      shell: bash
       run: |
-        mv setup_executable.py setup.py
+        if [ -f "setup_executable.py" ]; then
+          mv setup_executable.py setup.py
+          echo "Original setup.py restored"
+        else
+          echo "No backup setup.py found to restore"
+        fi
 
     - name: Verify distributions
       run: |
