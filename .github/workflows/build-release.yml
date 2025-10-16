@@ -66,11 +66,12 @@ jobs:
         python -m pip install --upgrade pip
         pip install build wheel setuptools twine
 
-    - name: Create pyproject.toml for distribution builds
+    - name: Create distribution setup files
       run: |
+        # Create pyproject.toml
         cat > pyproject.toml << 'EOF'
         [build-system]
-        requires = ["setuptools>=45", "wheel", "setuptools_scm[toml]>=6.2"]
+        requires = ["setuptools>=45", "wheel"]
         build-backend = "setuptools.build_meta"
 
         [project]
@@ -119,17 +120,35 @@ jobs:
         Repository = "https://github.com/Nick-prog/Excel-Template-Mapper.git"
         Issues = "https://github.com/Nick-prog/Excel-Template-Mapper/issues"
 
+        [tool.setuptools]
+        py-modules = ["app_psg", "engine", "models", "utils"]
+        include-package-data = true
+
         [tool.setuptools.packages.find]
         where = ["."]
-        include = ["src*", "layouts*", "widgets*"]
+        include = ["layouts*", "widgets*"]
 
         [tool.setuptools.package-data]
         "*" = ["*.md", "*.txt", "*.yml", "*.yaml"]
         EOF
 
+        # Backup original setup.py
+        mv setup.py setup_executable.py
+
+        # Create minimal setup.py for distribution builds
+        cat > setup.py << 'EOF'
+        from setuptools import setup
+
+        setup()
+        EOF
+
     - name: Build Python distributions
       run: |
         python -m build
+
+    - name: Restore original setup.py
+      run: |
+        mv setup_executable.py setup.py
 
     - name: Verify distributions
       run: |
