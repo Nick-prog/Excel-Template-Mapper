@@ -47,17 +47,17 @@ def check_python_version():
     current_version = sys.version_info[:2]
     
     if current_version < min_version:
-        print(f"❌ Error: Python {min_version[0]}.{min_version[1]}+ is required.")
-        print(f"   Current version: {sys.version}")
+        print(f"ERROR: Python {min_version[0]}.{min_version[1]}+ is required.")
+        print(f"Current version: {current_version[0]}.{current_version[1]}")
         sys.exit(1)
     
-    print(f"✅ Python version check passed: {sys.version.split()[0]}")
+    print(f"SUCCESS: Python version check passed: {sys.version.split()[0]}")
 
 def install_requirements():
     """Check required packages (without installing globally)"""
     requirements = get_requirements()
     if not requirements:
-        print("ℹ️  No requirements.txt found, skipping dependency check")
+        print("INFO:  No requirements.txt found, skipping dependency check")
         return True
     
     print("🔍 Checking dependencies...")
@@ -85,30 +85,30 @@ def install_requirements():
         
         try:
             __import__(import_name)
-            print(f"✅ Found: {req}")
+            print(f"FOUND: {req}")
         except ImportError:
             # For PySide6 addons/essentials, check if base PySide6 is available
             if package_name in ['PySide6_Addons', 'PySide6_Essentials']:
                 try:
                     __import__('PySide6')
-                    print(f"✅ Found: {req} (via PySide6)")
+                    print(f"FOUND: {req} (via PySide6)")
                     continue
                 except ImportError:
                     pass
             missing_packages.append(req)
-            print(f"❌ Missing: {req}")
+            print(f"MISSING: {req}")
     
     if missing_packages:
-        print(f"\n⚠️  Missing {len(missing_packages)} required package(s):")
+        print(f"\nMISSING {len(missing_packages)} required package(s):")
         for pkg in missing_packages:
             print(f"   - {pkg}")
-        print("\n💡 Please install dependencies first:")
+        print("\nPlease install dependencies first:")
         print("   Option 1: pip install -r requirements.txt")
         print("   Option 2: python setup.py install")
         print("   Option 3: Use a virtual environment with dependencies")
         return False
     
-    print("✅ All dependencies are available!")
+    print("SUCCESS: All dependencies are available!")
     return True
 
 def create_executable():
@@ -116,14 +116,14 @@ def create_executable():
     # Check if PyInstaller is available
     try:
         import PyInstaller
-        print("✅ PyInstaller found")
+        print("SUCCESS: PyInstaller found")
     except ImportError:
-        print("❌ PyInstaller not found")
-        print("💡 Please install PyInstaller first:")
+        print("ERROR: PyInstaller not found")
+        print("Please install PyInstaller first:")
         print("   pip install pyinstaller")
         return False
     
-    print("🔨 Creating minimal executable with only essential files...")
+    print("Creating minimal executable with only essential files...")
     
     # Determine platform-specific settings
     system = platform.system().lower()
@@ -188,7 +188,7 @@ def create_executable():
     
     try:
         subprocess.check_call(cmd, cwd=ROOT_DIR)
-        print(f"✅ Executable created successfully!")
+        print(f"SUCCESS: Executable created successfully!")
         
         # Clean up build artifacts - keep only the final executable
         cleanup_build_artifacts()
@@ -204,7 +204,7 @@ def create_executable():
         if exe_path.exists():
             # Fix macOS executable permissions and security
             if system == "darwin":  # macOS
-                print("🔐 Fixing macOS permissions and security...")
+                print("Fixing macOS permissions and security...")
                 try:
                     # Make executable
                     import stat
@@ -214,58 +214,58 @@ def create_executable():
                     subprocess.run(["xattr", "-d", "com.apple.quarantine", str(exe_path)], 
                                  capture_output=True, check=False)
                     
-                    print("   ✓ Executable permissions set")
-                    print("   ✓ Quarantine attribute removed")
-                    print("   💡 You can now double-click the executable to run it")
+                    print("   SUCCESS: Executable permissions set")
+                    print("   SUCCESS: Quarantine attribute removed")
+                    print("   You can now double-click the executable to run it")
                 except Exception as e:
-                    print(f"   ⚠️  Permission fix warning: {e}")
+                    print(f"   WARNING: Permission fix warning: {e}")
             
-            print(f"📁 Executable location: {exe_path}")
-            print(f"📏 File size: {exe_path.stat().st_size / (1024*1024):.1f} MB")
+            print(f"Executable location: {exe_path}")
+            print(f"File size: {exe_path.stat().st_size / (1024*1024):.1f} MB")
             
             # Test if executable can run (basic check)
             if system == "darwin":
-                print("🧪 Testing executable...")
+                print("Testing executable...")
                 try:
                     # Just check if it's a valid executable (don't actually run GUI)
                     result = subprocess.run([str(exe_path), "--help"], 
                                           capture_output=True, timeout=5, check=False)
                     if result.returncode != 0:
-                        print("   ⚠️  Executable may have issues - try running manually")
+                        print("   WARNING: Executable may have issues - try running manually")
                     else:
-                        print("   ✅ Executable appears to be working")
+                        print("   SUCCESS: Executable appears to be working")
                 except (subprocess.TimeoutExpired, FileNotFoundError) as e:
-                    print(f"   ⚠️  Could not test executable: {e}")
+                    print(f"   WARNING: Could not test executable: {e}")
                     
         else:
-            print(f"⚠️  Executable not found at expected location: {exe_path}")
+            print(f"WARNING: Executable not found at expected location: {exe_path}")
             # List what's actually in dist
             if dist_dir.exists():
-                print(f"📂 Contents of {dist_dir}:")
+                print(f"Contents of {dist_dir}:")
                 for item in dist_dir.iterdir():
                     print(f"   {item.name}")
         
         return True
     except subprocess.CalledProcessError as e:
-        print(f"❌ Failed to create executable: {e}")
+        print(f"ERROR: Failed to create executable: {e}")
         return False
 
 def cleanup_build_artifacts():
     """Remove unnecessary build artifacts, keep only the final executable"""
-    print("🧹 Cleaning up build artifacts...")
+    print("Cleaning up build artifacts...")
     
     # Remove build directory
     build_dir = ROOT_DIR / "build"
     if build_dir.exists():
         import shutil
         shutil.rmtree(build_dir)
-        print("   ✓ Removed build/ directory")
+        print("   SUCCESS: Removed build/ directory")
     
     # Remove .spec file
     spec_files = list(ROOT_DIR.glob("*.spec"))
     for spec_file in spec_files:
         spec_file.unlink()
-        print(f"   ✓ Removed {spec_file.name}")
+        print(f"   SUCCESS: Removed {spec_file.name}")
     
     # Remove __pycache__ directories
     for pycache_dir in ROOT_DIR.rglob("__pycache__"):
@@ -273,16 +273,16 @@ def cleanup_build_artifacts():
             import shutil
             shutil.rmtree(pycache_dir)
     
-    print("   ✓ Build cleanup completed")
+    print("   SUCCESS: Build cleanup completed")
 
 def setup_development_environment():
     """Setup development environment"""
-    print("🔧 Setting up development environment...")
+    print("Setting up development environment...")
     
     # Create virtual environment if it doesn't exist
     venv_dir = ROOT_DIR / "venv"
     if not venv_dir.exists():
-        print("📦 Creating virtual environment...")
+        print("Creating virtual environment...")
         subprocess.check_call([sys.executable, "-m", "venv", str(venv_dir)])
     
     # Determine activation script path
@@ -294,8 +294,8 @@ def setup_development_environment():
         activate_script = venv_dir / "bin" / "activate"
         pip_path = venv_dir / "bin" / "pip"
     
-    print(f"✅ Virtual environment ready at: {venv_dir}")
-    print(f"💡 Activate with: {activate_script}")
+    print(f"SUCCESS: Virtual environment ready at: {venv_dir}")
+    print(f"TIP: Activate with: {activate_script}")
     
     return True
 
@@ -315,13 +315,13 @@ if SETUPTOOLS_AVAILABLE:
             # For explicit install command, actually install packages
             requirements = get_requirements()
             if requirements:
-                print("📦 Installing dependencies...")
+                print("PACKAGE: Installing dependencies...")
                 for req in requirements:
                     try:
                         subprocess.check_call([sys.executable, "-m", "pip", "install", req])
-                        print(f"✅ Installed: {req}")
+                        print(f"SUCCESS: Installed: {req}")
                     except subprocess.CalledProcessError as e:
-                        print(f"❌ Failed to install {req}: {e}")
+                        print(f"ERROR: Failed to install {req}: {e}")
                         sys.exit(1)
             
             super().run()
@@ -346,9 +346,9 @@ def main():
     if len(sys.argv) > 1 and sys.argv[1] in ["executable", "dev", "install", "build"]:
         command = sys.argv[1]
         
-        print(f"🚀 {APP_NAME} Setup")
-        print(f"📊 Platform: {platform.system()} {platform.machine()}")
-        print(f"🐍 Python: {sys.version.split()[0]}")
+        print(f"{APP_NAME} Setup")
+        print(f"Platform: {platform.system()} {platform.machine()}")
+        print(f"Python: {sys.version.split()[0]}")
         print("-" * 50)
         
         check_python_version()
@@ -364,29 +364,29 @@ def main():
                 sys.exit(1)
         elif command in ["install", "build"]:
             # Completely disable installation - redirect to manual installation
-            print("🚫 Package installation disabled to protect your environment!")
-            print("💡 To install dependencies manually, use:")
+            print("BLOCKED: Package installation disabled to protect your environment!")
+            print("TIP: To install dependencies manually, use:")
             print("   pip install -r requirements.txt")
             print("   pip install pyinstaller")
-            print("\n💡 Or use a virtual environment:")
+            print("\nTIP: Or use a virtual environment:")
             print("   python -m venv venv")
             print("   source venv/bin/activate  # Linux/macOS")
             print("   # venv\\Scripts\\activate     # Windows")
             print("   pip install -r requirements.txt pyinstaller")
-            print("\n🎯 Then run: python setup.py executable")
-            print("🎯 This setup.py is ONLY for building executables - no package management!")
+            print("\nTARGET: Then run: python setup.py executable")
+            print("TARGET: This setup.py is ONLY for building executables - no package management!")
             sys.exit(0)
         
         if command in ["executable", "dev"]:
             print("-" * 50)
-            print("✅ Setup completed successfully!")
+            print("SUCCESS: Setup completed successfully!")
             return
     
     # Completely disable setuptools installation - setup.py is now ONLY for executable creation
-    print("🚫 Direct setuptools installation disabled!")
-    print("💡 This setup.py only creates executables - no package installation.")
-    print("💡 Use 'python setup.py executable' to build standalone executable.")
-    print("💡 Use 'pip install -r requirements.txt' to install dependencies manually.")
+    print("BLOCKED: Direct setuptools installation disabled!")
+    print("TIP: This setup.py only creates executables - no package installation.")
+    print("TIP: Use 'python setup.py executable' to build standalone executable.")
+    print("TIP: Use 'pip install -r requirements.txt' to install dependencies manually.")
     sys.exit(0)
 
 if __name__ == "__main__":
