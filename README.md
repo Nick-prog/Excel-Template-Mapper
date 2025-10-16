@@ -13,6 +13,19 @@ A powerful GUI application for mapping and transforming templates with Excel int
 
 **Latest Development Build:** [Download Latest Build](https://github.com/Nick-prog/Excel-Template-Mapper/releases/tag/latest) (Updated automatically with each commit)
 
+### Option 1.5: Install via Python Package (pip)
+
+**From Latest Release:**
+```bash
+# Download the .whl file from releases, then:
+pip install excel-template-mapper-*.whl
+
+# Or install from source distribution:
+pip install excel-template-mapper-*.tar.gz
+```
+
+**Note:** Python packages are available alongside executables in both stable and development releases.
+
 #### Quick Install Script:
 ```bash
 # Unix/Linux/macOS
@@ -25,11 +38,19 @@ Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Nick-prog/Excel-Templa
 #### Manual Download:
 1. Go to [Releases](https://github.com/Nick-prog/Excel-Template-Mapper/releases/latest)
 2. Download the appropriate file for your system:
-   - **Windows**: `Template-Mapper-windows-amd64.exe`
-   - **macOS (Intel)**: `Template-Mapper-macos-amd64`
-   - **macOS (Apple Silicon)**: `Template-Mapper-macos-arm64`
-   - **Linux**: `Template-Mapper-linux-amd64`
-3. Run the downloaded executable
+   
+   **Standalone Executables (No Python required):**
+   - **Windows**: `excel-template-mapper-windows-amd64.exe`
+   - **macOS (Intel)**: `excel-template-mapper-macos-amd64`
+   - **macOS (Apple Silicon)**: `excel-template-mapper-macos-arm64`
+   - **Linux**: `excel-template-mapper-linux-amd64`
+   
+   **Python Packages (For pip install):**
+   - **Wheel Package**: `excel-template-mapper-*.whl` (Recommended)
+   - **Source Distribution**: `excel-template-mapper-*.tar.gz`
+
+3. **For executables**: Run the downloaded file directly
+   **For Python packages**: `pip install downloaded-file.whl`
 
 ### Option 2: Build from Source
 
