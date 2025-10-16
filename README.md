@@ -1,13 +1,17 @@
 
 # Excel-Template-Mapper
 
+> **Note**: This project was developed utilizing GitHub Copilot AI assistance for code generation, optimization, and documentation.
+
 A powerful GUI application for mapping and transforming templates with Excel integration.
 
 ## 🚀 Quick Installation
 
 ### Option 1: Download Pre-built Executable (Recommended)
 
-**Latest Release:** [Download from GitHub Releases](https://github.com/Nick-prog/Excel-Template-Mapper/releases/latest)
+**Stable Release:** [Download from GitHub Releases](https://github.com/Nick-prog/Excel-Template-Mapper/releases/latest)
+
+**Latest Development Build:** [Download Latest Build](https://github.com/Nick-prog/Excel-Template-Mapper/releases/tag/latest) (Updated automatically with each commit)
 
 #### Quick Install Script:
 ```bash
