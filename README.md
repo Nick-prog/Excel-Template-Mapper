@@ -7,19 +7,19 @@ A powerful GUI application for mapping and transforming templates with Excel int
 
 ### Option 1: Download Pre-built Executable (Recommended)
 
-**Latest Release:** [Download from GitHub Releases](https://github.com/YOUR_USERNAME/YOUR_REPO/releases/latest)
+**Latest Release:** [Download from GitHub Releases](https://github.com/Nick-prog/Excel-Template-Mapper/releases/latest)
 
 #### Quick Install Script:
 ```bash
 # Unix/Linux/macOS
-curl -fsSL https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/Nick-prog/Excel-Template-Mapper/main/install.sh | bash
 
 # Windows (PowerShell)
-Invoke-WebRequest -Uri "https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/install.bat" -OutFile "install.bat" && .\install.bat
+Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Nick-prog/Excel-Template-Mapper/main/install.bat" -OutFile "install.bat" && .\install.bat
 ```
 
 #### Manual Download:
-1. Go to [Releases](https://github.com/YOUR_USERNAME/YOUR_REPO/releases/latest)
+1. Go to [Releases](https://github.com/Nick-prog/Excel-Template-Mapper/releases/latest)
 2. Download the appropriate file for your system:
    - **Windows**: `Template-Mapper-windows-amd64.exe`
    - **macOS (Intel)**: `Template-Mapper-macos-amd64`
@@ -36,7 +36,7 @@ Invoke-WebRequest -Uri "https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REP
 #### Step 1: Environment Setup
 ```bash
 # Clone the repository
-git clone https://github.com/YOUR_USERNAME/YOUR_REPO.git
+git clone https://github.com/Nick-prog/Excel-Template-Mapper/.git
 cd YOUR_REPO
 
 # Create and activate virtual environment (IMPORTANT!)
@@ -230,8 +230,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🐛 Support
 
-- **Issues**: [GitHub Issues](https://github.com/YOUR_USERNAME/YOUR_REPO/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/YOUR_USERNAME/YOUR_REPO/discussions)
+- **Issues**: [GitHub Issues](https://github.com/Nick-prog/Excel-Template-Mapper/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/Nick-prog/Excel-Template-Mapper/discussions)
 
 ## 🔧 Troubleshooting
 
@@ -277,7 +277,7 @@ source venv/bin/activate
 ## 🔄 Release Notes
 
 ### Latest Release
-See [Releases](https://github.com/YOUR_USERNAME/YOUR_REPO/releases) for detailed changelog.
+See [Releases](https://github.com/Nick-prog/Excel-Template-Mapper/releases) for detailed changelog.
 
 ---
 
@@ -287,4 +287,4 @@ See [Releases](https://github.com/YOUR_USERNAME/YOUR_REPO/releases) for detailed
 2. **Run** the executable
 3. **Start** mapping your templates!
 
-For detailed documentation, see the [Wiki](https://github.com/YOUR_USERNAME/YOUR_REPO/wiki).
+For detailed documentation, see the [Wiki](https://github.com/Nick-prog/Excel-Template-Mapper/wiki).
