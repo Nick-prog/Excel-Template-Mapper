@@ -66,13 +66,70 @@ jobs:
         python -m pip install --upgrade pip
         pip install build wheel setuptools twine
 
-    - name: Build source distribution
+    - name: Create pyproject.toml for distribution builds
       run: |
-        python setup.py sdist
+        cat > pyproject.toml << 'EOF'
+        [build-system]
+        requires = ["setuptools>=45", "wheel", "setuptools_scm[toml]>=6.2"]
+        build-backend = "setuptools.build_meta"
 
-    - name: Build wheel distribution
+        [project]
+        name = "excel-template-mapper"
+        version = "1.0.0"
+        description = "A GUI application for mapping and transforming templates with Excel integration"
+        readme = "README.md"
+        authors = [
+            {name = "Template Mapper Team", email = "support@templatemapper.com"},
+        ]
+        license = {text = "MIT"}
+        classifiers = [
+            "Development Status :: 4 - Beta",
+            "Intended Audience :: End Users/Desktop", 
+            "License :: OSI Approved :: MIT License",
+            "Operating System :: OS Independent",
+            "Programming Language :: Python :: 3",
+            "Programming Language :: Python :: 3.8",
+            "Programming Language :: Python :: 3.9",
+            "Programming Language :: Python :: 3.10",
+            "Programming Language :: Python :: 3.11",
+            "Programming Language :: Python :: 3.12",
+            "Programming Language :: Python :: 3.13",
+            "Topic :: Office/Business :: Financial :: Spreadsheet",
+            "Topic :: Utilities",
+        ]
+        requires-python = ">=3.8"
+        dependencies = [
+            "et_xmlfile>=2.0.0",
+            "GitPython>=3.1.0",
+            "openpyxl>=3.1.0", 
+            "PySide6>=6.10.0",
+            "PySide6_Addons>=6.10.0",
+            "PySide6_Essentials>=6.10.0",
+            "shiboken6>=6.10.0",
+        ]
+
+        [project.optional-dependencies]
+        dev = ["pyinstaller", "pytest", "black", "flake8"]
+
+        [project.scripts]
+        excel-template-mapper = "app_psg:main"
+
+        [project.urls]
+        Homepage = "https://github.com/Nick-prog/Excel-Template-Mapper"
+        Repository = "https://github.com/Nick-prog/Excel-Template-Mapper.git"
+        Issues = "https://github.com/Nick-prog/Excel-Template-Mapper/issues"
+
+        [tool.setuptools.packages.find]
+        where = ["."]
+        include = ["src*", "layouts*", "widgets*"]
+
+        [tool.setuptools.package-data]
+        "*" = ["*.md", "*.txt", "*.yml", "*.yaml"]
+        EOF
+
+    - name: Build Python distributions
       run: |
-        python setup.py bdist_wheel
+        python -m build
 
     - name: Verify distributions
       run: |
