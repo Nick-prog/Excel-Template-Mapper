@@ -160,11 +160,6 @@ jobs:
         pip install -r requirements.txt
         pip install pyinstaller
 
-    - name: Clean dist directory for executable build
-      run: |
-        rm -rf dist/
-        mkdir -p dist/
-
     - name: Build executable with setup.py
       run: |
         python setup.py executable
@@ -221,7 +216,6 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         path: artifacts/
-        pattern: excel-template-mapper-*
         
     - name: Download Python distribution artifacts
       uses: actions/download-artifact@v4
@@ -232,10 +226,15 @@ jobs:
     - name: Prepare release files
       run: |
         mkdir -p release-files/
+        echo "=== Executable artifacts ==="
+        find artifacts/ -type f -name "*" | head -20
         # Copy executable artifacts
         find artifacts/ -type f -exec cp {} release-files/ \;
+        echo "=== Python distribution packages ==="
+        ls -la python-dist/
         # Copy Python distribution packages
         find python-dist/ -type f -exec cp {} release-files/ \;
+        echo "=== Final release files ==="
         ls -la release-files/
 
     - name: Install GitHub CLI
