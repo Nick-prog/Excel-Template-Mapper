@@ -60,7 +60,7 @@ def install_requirements():
         print("INFO:  No requirements.txt found, skipping dependency check")
         return True
     
-    print("🔍 Checking dependencies...")
+    print("Checking dependencies...")
     missing_packages = []
     
     # Package name mapping (pip name -> import name)
