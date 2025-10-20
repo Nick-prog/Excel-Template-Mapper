@@ -12,6 +12,11 @@ on:
 env:
   APP_NAME: excel-template-mapper
   PYTHON_VERSION: '3.13'
+
+permissions:
+  contents: write
+  packages: write
+  actions: read
   
 jobs:
   test:
@@ -358,10 +363,20 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y gh
         
-    - name: Delete existing latest release
+    - name: Delete existing latest release and tag
       continue-on-error: true
       run: |
+        # Delete the release first
         gh release delete latest --yes || echo "No existing latest release found"
+        # Delete the tag if it exists
+        git push --delete origin latest || echo "No existing latest tag found"
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: Create latest tag
+      run: |
+        git tag -f latest
+        git push --force origin latest
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         
@@ -371,7 +386,7 @@ jobs:
         tag_name: latest
         name: "Latest Development Build"
         body: |
-          **Latest Development Build** 🚀
+          **Latest Development Build**
           
           This is an automated build from the latest commit on the main branch.
           
@@ -379,7 +394,7 @@ jobs:
           **Date**: ${{ github.event.head_commit.timestamp }}
           **Author**: ${{ github.event.head_commit.author.name }}
           
-          **📥 Download Options:**
+          **Download Options:**
           
           **Standalone Executables** (No Python required):
           - **Windows**: `excel-template-mapper-windows-amd64.exe` 
@@ -400,13 +415,14 @@ jobs:
           pip install excel-template-mapper-*.tar.gz
           ```
           
-          > ⚠️ **Development Build Notice**: This is a pre-release development build that gets updated automatically with each commit. For stable, tested releases, please check the [main releases page](https://github.com/${{ github.repository }}/releases).
+          > **Development Build Notice**: This is a pre-release development build that gets updated automatically with each commit. For stable, tested releases, please check the [main releases page](https://github.com/${{ github.repository }}/releases).
           
           **Recent Changes:**
           ${{ github.event.head_commit.message }}
         files: release-files/*
         draft: false
         prerelease: true
+        make_latest: false
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
