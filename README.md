@@ -52,6 +52,8 @@ Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Nick-prog/Excel-Templa
 3. **For executables**: Run the downloaded file directly
    **For Python packages**: `pip install downloaded-file.whl`
 
+> **⚠️ Security Note**: Browsers may warn about downloading executables. These are false positives for unsigned files. See [DOWNLOAD_SECURITY.md](DOWNLOAD_SECURITY.md) for details about why this happens and how to safely download.
+
 ### Option 2: Build from Source
 
 #### Prerequisites

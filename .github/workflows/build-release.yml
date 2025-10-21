@@ -178,6 +178,14 @@ jobs:
           exit 1
         fi
 
+    - name: Sign Python packages with Sigstore
+      uses: sigstore/gh-action-sigstore-python@v2.1.1
+      with:
+        inputs: dist/*.whl dist/*.tar.gz
+        upload-signing-artifacts: true
+      env:
+        SIGSTORE_ID_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
     - name: Upload Python distribution artifacts
       uses: actions/upload-artifact@v4
       with:
@@ -304,18 +312,30 @@ jobs:
           echo "Skipping GUI test on headless environment"
         fi
 
+    - name: Sign artifact with Sigstore
+      uses: sigstore/gh-action-sigstore-python@v2.1.1
+      with:
+        inputs: dist/${{ matrix.artifact_name }}
+        upload-signing-artifacts: true
+      env:
+        SIGSTORE_ID_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
         name: ${{ matrix.asset_name }}
-        path: dist/${{ matrix.artifact_name }}
+        path: |
+          dist/${{ matrix.artifact_name }}
+          dist/${{ matrix.artifact_name }}.sigstore
         retention-days: 90
 
     - name: Upload to tagged release
       if: startsWith(github.ref, 'refs/tags/')
       uses: softprops/action-gh-release@v2
       with:
-        files: dist/${{ matrix.artifact_name }}
+        files: |
+          dist/${{ matrix.artifact_name }}
+          dist/${{ matrix.artifact_name }}.sigstore
         generate_release_notes: true
         draft: false
         prerelease: false
@@ -373,6 +393,13 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         
+    - name: Generate checksums
+      run: |
+        cd release-files
+        # Generate SHA256 checksums for all files including signatures
+        find . -type f \( -name "*.exe" -o -name "excel-template-mapper-*" -o -name "*.whl" -o -name "*.tar.gz" -o -name "*.sigstore" \) -exec sha256sum {} \; > ../SHA256SUMS.txt
+        cd ..
+        
     - name: Create latest tag
       run: |
         git tag -f latest
@@ -417,9 +444,16 @@ jobs:
           
           > **Development Build Notice**: This is a pre-release development build that gets updated automatically with each commit. For stable, tested releases, please check the [main releases page](https://github.com/${{ github.repository }}/releases).
           
+          **Security & Verification:**
+          - All files include **Sigstore cryptographic signatures** (`.sigstore` files)
+          - Download `SHA256SUMS.txt` to verify file integrity
+          - See [DOWNLOAD_SECURITY.md](https://github.com/${{ github.repository }}/blob/main/DOWNLOAD_SECURITY.md) for verification instructions
+          
           **Recent Changes:**
           ${{ github.event.head_commit.message }}
-        files: release-files/*
+        files: |
+          release-files/*
+          SHA256SUMS.txt
         draft: false
         prerelease: true
         make_latest: false
@@ -430,7 +464,7 @@ jobs:
     name: Build Docker Images
     needs: test
     runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
+    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
     
     steps:
     - name: Checkout code
@@ -489,7 +523,7 @@ jobs:
     name: Create Installation Scripts
     needs: build
     runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/')
+    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/')
     
     steps:
     - name: Checkout code
@@ -508,9 +542,9 @@ jobs:
         GITHUB_REPO="${{ github.repository }}"
         VERSION="${{ github.ref_name }}"
 
-        echo "🚀 Excel Template Mapper Installer"
-        echo "📦 Version: $VERSION"
-        echo "📂 Repository: $GITHUB_REPO"
+        echo "Excel Template Mapper Installer"
+        echo "Version: $VERSION"
+        echo "Repository: $GITHUB_REPO"
         echo ""
 
         # Detect platform
@@ -535,12 +569,12 @@ jobs:
                 EXECUTABLE_NAME="$APP_NAME.exe"
                 ;;
             *)
-                echo "❌ Unsupported operating system: $OS"
+                echo "ERROR: Unsupported operating system: $OS"
                 exit 1
                 ;;
         esac
 
-        echo "🔍 Detected platform: $PLATFORM"
+        echo "Detected platform: $PLATFORM"
         
         # Download URL
         DOWNLOAD_URL="https://github.com/$GITHUB_REPO/releases/download/$VERSION/$APP_NAME-$PLATFORM"
@@ -548,7 +582,7 @@ jobs:
             DOWNLOAD_URL="$DOWNLOAD_URL.exe"
         fi
 
-        echo "📥 Downloading from: $DOWNLOAD_URL"
+        echo "Downloading from: $DOWNLOAD_URL"
 
         # Download executable
         if command -v curl &> /dev/null; then
@@ -556,7 +590,7 @@ jobs:
         elif command -v wget &> /dev/null; then
             wget -O "$EXECUTABLE_NAME" "$DOWNLOAD_URL"
         else
-            echo "❌ Neither curl nor wget found. Please install one of them."
+            echo "ERROR: Neither curl nor wget found. Please install one of them."
             exit 1
         fi
 
@@ -565,12 +599,12 @@ jobs:
             chmod +x "$EXECUTABLE_NAME"
         fi
 
-        echo "✅ Download completed: $EXECUTABLE_NAME"
+        echo "Download completed: $EXECUTABLE_NAME"
         echo ""
-        echo "🎯 To run the application:"
+        echo "To run the application:"
         echo "   ./$EXECUTABLE_NAME"
         echo ""
-        echo "💡 You can move the executable to a directory in your PATH for global access."
+        echo "TIP: You can move the executable to a directory in your PATH for global access."
         EOF
 
         chmod +x install.sh
