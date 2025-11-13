@@ -17,11 +17,24 @@ class MainWindow(QtWidgets.QMainWindow):
         col: ColumnMapping = sm.columns[row]
         self.selected_column = col  # Ensure advanced formatting targets the correct column
         self.detail_target.setText(col.target)
+        self.detail_source.setText(col.source or "-")
         self.detail_type.setCurrentText(col.data_type or "general")
         self.detail_format.setText(col.number_format or "")
         self.detail_tfbtn.set_values(col.transforms or [])
         self.detail_default.setText(col.default or "")
         self.detail_advanced.setPlainText(getattr(col, "advanced_format", ""))
+        
+        # Populate find/replace table
+        if hasattr(self, 'detail_find_replace'):
+            self.detail_find_replace.setRowCount(0)
+            find_replace = getattr(col, 'find_replace', {}) or {}
+            for idx, (find_val, replace_val) in enumerate(find_replace.items()):
+                self.detail_find_replace.insertRow(idx)
+                self.detail_find_replace.setItem(idx, 0, QtWidgets.QTableWidgetItem(find_val))
+                self.detail_find_replace.setItem(idx, 1, QtWidgets.QTableWidgetItem(replace_val))
+                remove_btn = QtWidgets.QPushButton("Delete")
+                remove_btn.clicked.connect(lambda checked, r=idx: self.detail_find_replace.removeRow(r))
+                self.detail_find_replace.setCellWidget(idx, 2, remove_btn)
 
     def on_toggle_details(self, checked: bool) -> None:
         self.details_widget.setVisible(checked)
@@ -165,7 +178,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.details_toggle = create_details_toggle(self, self.on_toggle_details)
         vbox.addWidget(self.details_toggle)
         (self.details_widget, self.detail_target, self.detail_type, self.detail_format,
-         self.detail_tfbtn, self.detail_default, self.detail_advanced, self.detail_apply) = create_details_widget(self, self.on_apply_details)
+         self.detail_tfbtn, self.detail_default, self.detail_advanced, self.detail_apply,
+         self.detail_source, self.detail_format_preset, self.detail_find_replace) = create_details_widget(self, self.on_apply_details)
         vbox.addWidget(self.details_widget)
         bottom_row, self.drop_blank_chk, btn_export, btn_import, btn_preview, btn_save = create_bottom_row(
             self,
@@ -292,4 +306,13 @@ class MainWindow(QtWidgets.QMainWindow):
         col.transforms = self.detail_tfbtn.values()
         col.default = self.detail_default.text()
         col.advanced_format = self.detail_advanced.toPlainText()
+        
+        # Extract find/replace pairs from table
+        col.find_replace = {}
+        if hasattr(self, 'detail_find_replace'):
+            for row_idx in range(self.detail_find_replace.rowCount()):
+                find_item = self.detail_find_replace.item(row_idx, 0)
+                replace_item = self.detail_find_replace.item(row_idx, 1)
+                if find_item and replace_item and find_item.text() and replace_item.text():
+                    col.find_replace[find_item.text()] = replace_item.text()
         QtWidgets.QMessageBox.information(self, "Details", f"Applied settings to: {col.target}")

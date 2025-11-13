@@ -193,3 +193,8 @@ tmp/
 
 # Copilot documentation and conversation summaries
 copilot/
+
+# Developer tools
+test/
+Makefile
+*.sh

@@ -129,28 +129,32 @@ class AdvancedFormatBuilderDialog(QtWidgets.QDialog):
         if snippet == "If/Else (source)":
             code = (
                 "def format_column(col, source):\n"
-                "    if source['Gender'] == 'Male':\n"
-                "        return 'M'\n"
+                "    \"\"\"Map source column values to target column.\"\"\"\n"
+                "    if source['SourceColumn'] == 'ExpectedValue':\n"
+                "        return 'MappedValue'\n"
                 "    else:\n"
-                "        return 'F'\n"
+                "        return source['SourceColumn']\n"
             )
             cursor.insertText(code)
         elif snippet == "Reference target column":
             code = (
                 "def format_column(col, source):\n"
-                "    return col['OtherColumn']\n"
+                "    \"\"\"Use value from another target column.\"\"\"\n"
+                "    return col['OtherTargetColumn']\n"
             )
             cursor.insertText(code)
         elif snippet == "Reference source column":
             code = (
                 "def format_column(col, source):\n"
-                "    return source['Gender']\n"
+                "    \"\"\"Use value directly from source column.\"\"\"\n"
+                "    return source['SourceColumn']\n"
             )
             cursor.insertText(code)
         elif snippet == "Return value":
             code = (
                 "def format_column(col, source):\n"
-                "    return value\n"
+                "    \"\"\"Return a static value.\"\"\"\n"
+                "    return 'StaticValue'\n"
             )
             cursor.insertText(code)
 
