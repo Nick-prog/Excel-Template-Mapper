@@ -66,7 +66,9 @@ def create_details_widget(parent, on_apply_details):
 def _create_type_format_tab(parent):
     """Create Data Type & Format tab."""
     widget = QtWidgets.QWidget(parent)
-    layout = QtWidgets.QFormLayout(widget)
+    main_layout = QtWidgets.QVBoxLayout(widget)
+    
+    layout = QtWidgets.QFormLayout()
     
     # Data Type selector
     type_label = QtWidgets.QLabel(
@@ -150,7 +152,8 @@ def _create_type_format_tab(parent):
     help_text.setStyleSheet("color: #666; font-size: 10px;")
     layout.addRow(help_text)
     
-    layout.addStretch()
+    main_layout.addLayout(layout)
+    main_layout.addStretch()
     
     return {
         'widget': widget,
@@ -193,7 +196,10 @@ def _create_find_replace_tab(parent):
         table.setItem(row, 0, QtWidgets.QTableWidgetItem(""))
         table.setItem(row, 1, QtWidgets.QTableWidgetItem(""))
         remove_btn = QtWidgets.QPushButton("Delete")
-        remove_btn.clicked.connect(lambda: table.removeRow(table.indexFromItem(remove_btn.sender()).row() if hasattr(remove_btn, 'sender') else row))
+        # Create closure to capture row number
+        def delete_row(checked=False, row_num=row):
+            table.removeRow(row_num)
+        remove_btn.clicked.connect(delete_row)
         table.setCellWidget(row, 2, remove_btn)
     add_btn.clicked.connect(add_row)
     button_layout.addWidget(add_btn)
@@ -357,7 +363,7 @@ def format_column(col, source):
         "Regex: Email Extraction": """r'(?P<email>[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,})'""",
     }
     
-    template_combo.addItems(templates.keys())
+    template_combo.addItems(list(templates.keys()))
     
     def insert_template():
         selected = template_combo.currentText()
